@@ -8,11 +8,6 @@ Author: Eric Zeidan
 
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
-/**
- *  We include the main class
- */
-include('inc/class-simple-ticketing.php');
-
 /*
 *   =================================================================================================
 *   CLASSES
@@ -20,9 +15,10 @@ include('inc/class-simple-ticketing.php');
 *   automatically.
 *   =================================================================================================
 */
-foreach (glob(__DIR__ . "/inc/classes/*.php") as $filename)
-    include $filename;
+foreach (glob(__DIR__ . "/classes/class-*.php") as $filename)
+	include $filename;
 
+define('ST_BASE_DIR', plugin_dir_path(__FILE__));
 /**
  * We create the instance
  */

@@ -4,13 +4,14 @@ Tags: Messaging Plugin
 Requires at least: 4.0
 Tested up to: 4.6.1
 Stable tag: 0.1.0
+Author: Eric Zeidan
 License: GPLv2 or later
 
-Messaging for Proyecto SEM
+Lite Messaging System
 
 == Description ==
 
-Messaging for Proyecto SEM
+Lite Messaging System
 
 == Installation ==
 

@@ -13,6 +13,18 @@ class st_plugin{
 	 * The Class Constructor
 	 */
 	public function __construct() {
+		$this->init_hooks();
+	}
+
+	/**
+	 * init_hooks
+	 *
+	 * Load all needed hooks
+	 *
+	 * @author Eric Zeidan <eric@zeidan.info>
+	 * @since 1.0
+	 */
+	public function init_hooks() {
 		add_action( 'admin_menu',array($this,"st_add_option_menu"));
 		add_action( 'admin_enqueue_scripts', array($this, "st_admin_init"));
 		add_action( 'wp_enqueue_scripts', array($this, "st_front_scripts"));
@@ -34,7 +46,6 @@ class st_plugin{
 
 		add_action( 'admin_init', array($this, 'st_redirect'));
 	}
-
 	/**
 	 * st_activate
 	 *
@@ -60,7 +71,7 @@ class st_plugin{
 			delete_option('st_do_activation_redirect');
 			if (!isset($_GET['activate-multi'])) {
 				flush_rewrite_rules();
-				wp_redirect("options-general.php?page=simple-ticketing%2Finc%2Fclass-simple-ticketing.php");
+				wp_redirect("options-general.php?page=simple-ticketing%2Fclasses%2Fclass-simple-ticketing.php");
 			}
 		}
 	}
@@ -104,7 +115,7 @@ class st_plugin{
 	 * @since 1.0
 	 */
 	public function st_add_option_menu(){
-		add_options_page("st_plugin", "Simple Ticketing System", "read", __FILE__,array($this, 'admin_menu'));
+		add_options_page("st_plugin", "Simple Ticketing System", "read", __FILE__, array($this, 'admin_menu'));
 	}
 
 	public function st_create_posttypes() {
@@ -136,7 +147,7 @@ class st_plugin{
 		global $post;
 
 		if ( is_post_type_archive ( 'ticketing' ) ) {
-			$archive_template = dirname( __FILE__ ) . '/ticketing-template.php';
+			$archive_template = dirname( __FILE__ ) . '/templates/ticketing-template.php';
 		}
 		return $archive_template;
 	}
@@ -145,7 +156,7 @@ class st_plugin{
 		global $post;
 
 		if ($post->post_type == 'ticketing') {
-			$single_template = dirname( __FILE__ ) . '/single-ticketing.php';
+			$single_template = dirname( __FILE__ ) . '/templates/single-ticketing.php';
 		}
 		return $single_template;
 	}
@@ -169,7 +180,7 @@ class st_plugin{
 	 * @since 1.0
 	 */
 	public function admin_menu(){
-		include('st-options.php');
+		require_once ST_BASE_DIR . 'templates/st-options.php';
 	}
 
 	/**
@@ -265,7 +276,7 @@ class st_plugin{
 	 */
 	public function st_action_links ( $links ) {
 		$mylinks = array(
-			'<a href="' . admin_url( 'options-general.php?page=simple-ticketing/inc/class-simple-ticketing.php' ) . '">' . __('Settings','kapwhi') . '</a>',
+			'<a href="' . admin_url( 'options-general.php?page=simple-ticketing/classes/class-simple-ticketing.php' ) . '">' . __('Settings','kapwhi') . '</a>',
 		);
 		return array_merge( $links, $mylinks );
 	}
