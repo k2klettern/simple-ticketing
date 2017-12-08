@@ -89,7 +89,7 @@ jQuery(document).ready(function($) {
 } );
 
                 var options = {
-               valueNames: [ 'postname', 'status', 'reference', 'date', 'moddate' ]
+               valueNames: [ 'postname', 'status', 'date', 'moddate' ]
               };
 
                 var userList = new List('tickets', options);
