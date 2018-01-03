@@ -1,13 +1,14 @@
 <?php
 
-if (!is_user_logged_in() && !current_user_can('administrator')) {
-    wp_safe_redirect(wp_login_url());
+if (!is_user_logged_in()) {
+    wp_safe_redirect(wp_login_url(site_url( '/ticketing/ ' )));
     die;
 }
 
 get_header();
 
 $userid = get_current_user_id();
+
 
 if (current_user_can('caae_client')) {
     query_posts($query_string . "&order=DESC&posts_per_page=-1&author=$user_id");
@@ -112,58 +113,46 @@ if (current_user_can('caae_client')) {
                                             $input = isset($_POST['input']) ? $_POST['input'] : "";
                                             if (isset($GLOBALS['answer'])) {
                                                 echo $GLOBALS['answer'];
-                                            } ?>
+                                            }
 
-                                            <?php wp_nonce_field('front-st-action', 'front-st-nonce-field'); ?>
-                                            <div clas="form-group">
-                                                <label for="title"><?php _e('Asunto', 'st_plugin'); ?></label>
-                                                <input type="text" class="form-control" id="title" name="title"
-                                                       value="<?php echo isset($_POST['title']) ? $_POST['title'] : ""; ?>">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="reference"><?php _e('Referencia', 'st_plugin'); ?></label>
-                                                <select name="reference" id="referencia" class="form-control">
-                                                    <option value="">Selecciona una Solicitud</option>
-                                                    <?php $posts = get_posts(array(
-                                                        'post_type' => "solicitudes",
-                                                        'post_status' => array('publish', 'pendiente', 'aprobada', 'revision', 'cerrada'),
-                                                        'post_author' => get_current_user_id(),
-                                                        'order' => 'DESC'
-                                                    ));
+                } elseif ($action == "new") {
+                    ?>
+                    <h1 class="page-header"><?php _e('Crear un Nuevo Mensaje', 'st_plugin'); ?></h1>
+                    <?php
+                    $input = isset($_POST['input']) ? $_POST['input'] : "";
+                    if (isset($GLOBALS['answer'])) {
+                        echo $GLOBALS['answer'];
+                    } ?>
 
-                                                    if ($posts) {
-                                                        foreach ($posts as $post) { ?>
-                                                            <option
-                                                                value="<?php echo $post->ID; ?>"><?php echo $post->post_title; ?></option>
-                                                        <?php }
-                                                    }
-                                                    ?>
-                                                </select>
-                                            </div>
-                                            <div class="form-group your-request">
-                                                <label for="stn-editor"><?php _e('Tu Mensaje', 'st_plugin'); ?></label><br/>
-                                                <?php $content = "";
-                                                $editor_id = "stn-editor";
-                                                wp_editor($content, $editor_id, array('textarea_name' => "input[0][message]", 'teeny' => true, 'media_buttons' => false)); ?>
-                                            </div>
-                                            <input type="hidden" name="input[0][userid]" value="<?php echo get_current_user_id(); ?>">
-                                            <input type="hidden" name="input[0][type]" value="mainmessage">
-                                            <button class="btn btn-md btn-submit" id="volver" onclick="history.back()" type="button"><i class="fa fa-chevron-left"></i> Volver</button>
-                                            <input type="submit" class="btn btn-success btn-send-msg" value"<?php _e('Enviar', 'st_plugin'); ?>">
-                                            <?php
-                                        } ?>
-                                    </form>
-                                    <?php else : ?>
-                                        <p><a href='<?php echo wp_login_url(); ?>'
-                                              class='kp-button blue'><?php _e('Debes Ingresar para ver el contenido', 'st_plugin'); ?></a>
-                                        </p>
-                                    <?php endif; //isuserloggedin ?>
-                                </div>
-                            </div>
-                        </div>
+                    <?php wp_nonce_field('front-st-action', 'front-st-nonce-field'); ?>
+                    <div clas="form-group">
+                        <label for="title"><?php _e('Asunto', 'st_plugin'); ?></label>
+                        <input type="text" class="form-control" id="title" name="title"
+                               value="<?php echo isset($_POST['title']) ? $_POST['title'] : ""; ?>">
+                    </div>
+                    <div class="form-group your-request">
+                        <label for="stn-editor"><?php _e('Tu Mensaje', 'st_plugin'); ?></label><br/>
+                        <?php $content = "";
+                        $editor_id = "stn-editor";
+                        wp_editor($content, $editor_id, array('textarea_name' => "input[0][message]", 'teeny' => true, 'media_buttons' => false)); ?>
+                    </div>
+                    <input type="hidden" name="input[0][userid]" value="<?php echo get_current_user_id(); ?>">
+                    <input type="hidden" name="input[0][type]" value="mainmessage">
+                    <button class="btn btn-md btn-submit" id="volver" onclick="history.back()" type="button"><i class="fa fa-chevron-left"></i> Volver</button>
+                    <input type="submit" class="btn btn-success btn-send-msg" value"<?php _e('Enviar', 'st_plugin'); ?>">
+                    <?php
+                } ?>
+            </form>
+            <?php else : ?>
+                <p><a href='<?php echo wp_login_url(site_url( '/ticketing/ ' )); ?>'
+                      class='kp-button blue'><?php _e('Debes Ingresar para ver el contenido', 'st_plugin'); ?></a>
+                </p>
+            <?php endif; //isuserloggedin ?>
         </div>
     </div>
-</div><!-- .content-area -->
+</div>
+
 
 <?php if(is_active_sidebar('sidebar')) get_sidebar(); ?>
+
 <?php get_footer(); ?>

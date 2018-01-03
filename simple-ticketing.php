@@ -19,6 +19,10 @@ foreach (glob(__DIR__ . "/classes/class-*.php") as $filename)
 	include $filename;
 
 define('ST_BASE_DIR', plugin_dir_path(__FILE__));
+define('ST_BASE_URL', plugin_dir_url(__FILE__));
+define('ST_BASENAME', plugin_basename(__FILE__));
+define('ST_TEXT_DOMAIN', 'st_plugin');
+
 /**
  * We create the instance
  */

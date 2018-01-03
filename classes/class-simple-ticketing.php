@@ -92,19 +92,19 @@ class st_plugin{
 	public  function st_front_scripts(){
 		wp_enqueue_script( 'jquery');
 		wp_enqueue_script('dashicons');
-		wp_enqueue_script( 'list_table_script', plugins_url( '../js/list.min.js', __FILE__), array( 'jquery'),'', true);
-		wp_enqueue_style( 'st_front_style', plugins_url( '../css/styles.css', __FILE__ ) );
-		wp_enqueue_script( 'st_front_script', plugins_url( '../js/main-ticketing.js', __FILE__), array('jquery'),'', true);
+		wp_enqueue_script( 'list_table_script', ST_BASE_URL . '/assets/js/list.min.js', array( 'jquery'),'', true);
+		wp_enqueue_style( 'st_front_style', ST_BASE_URL . '/assets/css/styles.css' );
+        wp_enqueue_style( 'st_grid_style', ST_BASE_URL . '/assets/css/simple-grid.min.css' );
+		wp_enqueue_script( 'st_front_script', ST_BASE_URL . '/assets/js/main-ticketing.js', array('jquery'),'', true);
 		wp_localize_script( 'st_front_script', 'myajaxvars', array('ajaxurl' => admin_url( 'admin-ajax.php' )));
 	}
 
 	public function st_admin_init(){
 		wp_enqueue_script( "jquery" );
 		if(get_current_screen()->base == 'settings_page_simple-ticketing/inc/class-simple-ticketing') {
-			wp_enqueue_script('clone-admin-script', plugins_url('../js/clone-admin-script.js', __FILE__), array('jquery'), false);
+			wp_enqueue_script('clone-admin-script', ST_BASE_URL .'/assets/js/clone-admin-script.js', array('jquery'), false);
 		}
-		//wp_enqueue_style( 'bootstrap-admin-styles', plugins_url( '../css/bootstrap.min.css', __FILE__ ) );
-			wp_enqueue_style( 'datatables-admin-styles', plugins_url( '../css/dataTables.bootstrap.min.css', __FILE__ ) );
+			wp_enqueue_style( 'datatables-admin-styles', ST_BASE_URL . '/assets/css/dataTables.bootstrap.min.css' );
 	}
 	/**
 	 * add_option_menu
@@ -145,7 +145,6 @@ class st_plugin{
 
 	public function st_display_template( $archive_template ) {
 		global $post;
-
 		if ( is_post_type_archive ( 'ticketing' ) ) {
 			$archive_template = ST_BASE_DIR . 'templates/ticketing-template.php';
 		}
@@ -238,7 +237,7 @@ class st_plugin{
 			$input = $_POST['input'];
 			$key = isset($_POST['key']) ? $_POST['key'] : null;
 			if(empty($input[$key]['message'])) {
-				$answer = "<div class='msg-error'>" . __('No se puede enviar un mensaje vacio, intenta de nuevo',  'st_plugin') . "</div>";
+				$answer = "<div class='msg-error'>" . __('No se puede enviar un mensaje vacio, intenta de nuevo',  ST_TEXT_DOMAIN) . "</div>";
 				wp_die( 'No se puede enviar un mensaje vacio, intenta de nuevo', null, array( 'back_link' => true ) );
 				return;
 			}
@@ -256,12 +255,12 @@ class st_plugin{
 			$updated = update_post_meta($postid, '_ticketng_details', $data);
 			if($updated) {
 				$mail = StHelpers::getInstance()->email_trigger('answer', null, $postid);
-				$answer = "<div class='msg-success'>" . __('Mensaje Actualizado', 'st_plugin') . "</div>";
+				$answer = "<div class='msg-success'>" . __('Mensaje Actualizado', ST_TEXT_DOMAIN) . "</div>";
 				$_SESSION['replying'] = 1;
 				$updatemeta = StHelpers::getInstance()->update_message_status($postid, 2);
 				return;
 			} else {
-				$answer = "<div class='msg-error'>" . __('Tenemos un problema, intenta de nuevo',  'st_plugin') . "</div>";
+				$answer = "<div class='msg-error'>" . __('Tenemos un problema, intenta de nuevo',  ST_TEXT_DOMAIN) . "</div>";
 				return;
 			}
 		}
@@ -287,7 +286,7 @@ class st_plugin{
 			if(!wp_verify_nonce($_POST['front-st-nonce-field'], 'front-st-action')) {
 				wp_die('no script kiddies!');
 			}
-			
+
 			if(!is_user_logged_in()) {
 				return false;
 			}
@@ -295,7 +294,7 @@ class st_plugin{
 			if(isset($_POST['title']) && isset($_POST['input'])) {
 				$input = $_POST['input'];
 				if(empty($input[0]['message'])) {
-					$answer = "<div class='msg-error'>" . __('No se puede enviar un mensaje vacio, intenta de nuevo',  'st_plugin') . "</div>";
+					$answer = "<div class='msg-error'>" . __('No se puede enviar un mensaje vacio, intenta de nuevo',  ST_TEXT_DOMAIN) . "</div>";
 					wp_die( 'No se puede enviar un mensaje vacio, intenta de nuevo', null, array( 'back_link' => true ) );
 					return;
 				}
@@ -303,14 +302,15 @@ class st_plugin{
 				$reference = $_POST['referencia'];
 				$mypost = get_page_by_title(wp_strip_all_tags($title), "", 'ticketing');
 				if($mypost) {
-					wp_die("<div class='error-msg'>" . __('Tenemos un problema, ya existe un mensaje con el mismo asunto, Intentalo de nuevo.', 'st_plugin') . "</div>", null, array('back_link' => true));
+					wp_die("<div class='error-msg'>" . __('Tenemos un problema, ya existe un mensaje con el mismo asunto, Intentalo de nuevo.', ST_TEXT_DOMAIN) . "</div>", null, array('back_link' => true));
 					return;
 				}
 				$args = array(
 					'post_type' => 'ticketing',
 					'post_title' => wp_strip_all_tags($title),
 					'post_status' => 'publish',
-					'post_author' => get_current_user_id()
+					'post_author' => get_current_user_id(),
+                    'post_date' => date("Y-m-d H:i:s")
 				);
 				$postid = wp_insert_post($args);
 				if($postid) {
@@ -321,16 +321,16 @@ class st_plugin{
 				if($meta) {
 					$mail = StHelpers::getInstance()->email_trigger($input[0]['type'], $input[0]['userid'], $postid);
 					$_SESSION['replying'] = 1;
-					//$answer = "<div class='alert alert-success'>" . __('Mensaje Creado, para verlo haz click en el siguiente enlance ', 'st_plugin') . "<a href='" . get_permalink($postid) . "'>Link.</a></div>";
+					//$answer = "<div class='alert alert-success'>" . __('Mensaje Creado, para verlo haz click en el siguiente enlance ', ST_TEXT_DOMAIN) . "<a href='" . get_permalink($postid) . "'>Link.</a></div>";
 
 					wp_safe_redirect(home_url($_POST['_wp_http_referer']));
 					die;
 				} else {
-					$answer = "<div class='alert alert-danger'>" . __('Existe un problema, intentalo de nuevo m&aacute;s tarde', 'st_plugin') . "</div>";
+					$answer = "<div class='alert alert-danger'>" . __('Existe un problema, intentalo de nuevo m&aacute;s tarde', ST_TEXT_DOMAIN) . "</div>";
 					return;
 				}
 			} else {
-				$answer = "<div class='alert alert-danger'>" . __('Todos los Campos son requeridos', 'st_plugin') . "</div>";
+				$answer = "<div class='alert alert-danger'>" . __('Todos los Campos son requeridos', ST_TEXT_DOMAIN) . "</div>";
 				return;
 			}
 		}
@@ -397,4 +397,6 @@ class st_plugin{
 				'</script>';
 		}
 	}
+
+
 }

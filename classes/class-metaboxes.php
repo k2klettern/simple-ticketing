@@ -37,33 +37,14 @@ class STMetaBoxClass {
         wp_nonce_field('ticketng_nonce_check', 'ticketng_nonce_check_value');
 
         $input = get_post_meta($post->ID, '_ticketng_details', true);
-        $reference = get_post_meta($post->ID, '_reference', true);
-        //Display the reference
-        ?>
-        <p><label for="reference"><?php _e('Referencia', 'st_plugin'); ?></label>
-        <select name="referencia" id="referencia" class="form-control">
-        <option value="">Selecciona una Solicitud</option>
-        <?php $posts = get_posts(array(
-            'post_type' => "solicitudes",
-            'post_status' => array('publish', 'pendiente', 'aprobada', 'revision', 'cerrada'),
-            'post_author' => get_current_user_id(),
-            'order' => 'DESC'
-        ));
 
-        if($posts) {
-            foreach ($posts as $post) { ?>
-                <option value="<?php echo $post->ID; ?>" <?php selected($reference, $post->ID); ?>><?php echo $post->post_title; ?></option>
-            <?php  }
-        }
-        ?>
-        </select>
-        </p> <?php
         // Display the fields we need, using the current value.
         if(isset($input[0])) {
             foreach ($input as $key => $value) {
-                $actualuser = get_user_by('ID', get_current_user_id()); ?>
+                $actualuser = get_user_by('ID', get_current_user_id());
+                $timestamp = isset($input[$key]['timestamp']) ? iconv('ISO-8859-2', 'UTF-8', strftime("%A %d de %B del %Y %T", $input[$key]['timestamp'])) : "Creado el: " . $post->post_date; ?>
                     <label
-                        for="message-<?php echo $key; ?>"><?php _e('Message from: ' . $actualuser->nickname . ' Send: ' . date('l dS \o\f F Y h:i:s A', $input[$key]['timestamp']) , 'st_plugin'); ?></label><br/>
+                        for="message-<?php echo $key; ?>"><?php _e('Message from: ' . $actualuser->nickname . ' Send: ' . $timestamp , 'st_plugin'); ?></label><br/>
                     <?php $content = isset($input[$key]['message']) ? $input[$key]['message'] : "";;
                     $editor_id = "message-$key";
                     wp_editor( $content, $editor_id, array('quicktags' => false, 'textarea_name' => "input[$key][message]", 'textarea_rows' => 3,'teeny' => true, 'media_buttons' => false  ) ); ?>
@@ -140,7 +121,6 @@ class STMetaBoxClass {
             $data = array_filter($data, function($value) { return $value['message'] !== ''; });
             // Update the meta field.
             $update = update_post_meta($post_id, '_ticketng_details', $data);
-            $updateref = update_post_meta($post_id, '_reference', $_POST['referencia']);
             $last = array_pop($data);
             $post_author = get_post_field( 'post_author', $post_id );
             if($update) {
