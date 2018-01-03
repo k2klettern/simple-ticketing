@@ -45,6 +45,7 @@ class st_plugin{
 		add_filter( 'plugin_action_links_simple-ticketing/new-login-url.php', array($this,'st_action_links'));
 
 		add_action( 'admin_init', array($this, 'st_redirect'));
+
 	}
 	/**
 	 * st_activate
@@ -77,15 +78,15 @@ class st_plugin{
 	}
 
 	function st_rewrite_tag() {
-		add_rewrite_tag( '%st-action%', '([^&]+)' );
+			add_rewrite_tag( '%st-action%', '([^&]+)' );
 	}
 
 	public function st_rewrite_rules() {
-			add_rewrite_rule( '^mensajes/st-action/([^/]*)/?', 'index.php?post_type=ticketing&st-action=$matches[1]','top' );
+			add_rewrite_rule( '^ticketing/st-action/([^/]*)/?', 'index.php?post_type=ticketing&st-action=$matches[1]','top' );
 	}
 
 	public function st_query_vars_filter( $vars ){
-		$vars[] = "st-action";
+		$vars[] = 'st-action';
 		return $vars;
 	}
 
