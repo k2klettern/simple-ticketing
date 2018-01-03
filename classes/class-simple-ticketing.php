@@ -137,7 +137,7 @@ class st_plugin{
 				'public' => true,
 				'supports' => array( 'title' ),
 				'has_archive' => true,
-				'rewrite' => array('slug' => 'mensajes'),
+				'rewrite' => array('slug' => 'ticketing'),
 				'menu_icon' => 'dashicons-tickets'
 			)
 		);
@@ -147,7 +147,7 @@ class st_plugin{
 		global $post;
 
 		if ( is_post_type_archive ( 'ticketing' ) ) {
-			$archive_template = dirname( __FILE__ ) . '/templates/ticketing-template.php';
+			$archive_template = ST_BASE_DIR . 'templates/ticketing-template.php';
 		}
 		return $archive_template;
 	}
@@ -156,7 +156,7 @@ class st_plugin{
 		global $post;
 
 		if ($post->post_type == 'ticketing') {
-			$single_template = dirname( __FILE__ ) . '/templates/single-ticketing.php';
+			$single_template = ST_BASE_DIR . 'templates/single-ticketing.php';
 		}
 		return $single_template;
 	}

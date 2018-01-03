@@ -4,37 +4,25 @@ if (!is_user_logged_in() && !current_user_can('administrator')) {
     wp_safe_redirect(wp_login_url());
     die;
 }
-//elseif (is_user_logged_in() && !get_query_var('st-action') && !current_user_can('administrator')) {
-//    wp_safe_redirect(home_url('/mi-cuenta/#tabs-3'));
-//    die;
-//}
 
 get_header();
 
 $userid = get_current_user_id();
+
 if (current_user_can('caae_client')) {
     query_posts($query_string . "&order=DESC&posts_per_page=-1&author=$user_id");
 } else {
     query_posts($query_string . '&order=DESC&posts_per_page=-1');
 }
 
-$main_column_size = is_front() ? 9 : bootstrapBasicGetMainColumnSize();
-
 ?>
-<?php if (is_back()) get_template_part('content', 'navsidebar'); ?>
 
-<?php if (is_back()): ?>
-<div class="col-xs-12 col-lg-<?php echo $main_column_size; ?> content-area" id="page-wrapper">
+<div class="col-xs-12 col-lg-12 content-area" id="page-wrapper">
     <div class="container">
         <div class="row">
-            <?php else: ?>
-            <div class="container">
-                <div class="row">
-                    <div class="col-xs-12 col-lg-<?php echo $main_column_size; ?> content-area" id="page-wrapper">
-            <?php endif; ?>
                         <div class="container">
                             <div class="row">
-                                <div class="col-xs-12 <?php if(is_back()): ?>col-lg-9 <?php endif; ?>">
+                                <div class="col-xs-12 col-lg-9">
                                     <form id="new-st" method="POST" action="">
                                         <?php
                                         $action = get_query_var('st-action');
@@ -177,5 +165,5 @@ $main_column_size = is_front() ? 9 : bootstrapBasicGetMainColumnSize();
     </div>
 </div><!-- .content-area -->
 
-<?php //if(is_active_sidebar('sidebar')) get_sidebar(); ?>
+<?php if(is_active_sidebar('sidebar')) get_sidebar(); ?>
 <?php get_footer(); ?>
