@@ -46,6 +46,7 @@ class st_plugin{
 		add_filter( 'plugin_action_links_simple-ticketing/new-login-url.php', array($this,'st_action_links'));
 
 		add_action( 'admin_init', array($this, 'st_redirect'));
+
 	}
 
 	public function isLcGoodAndCheck() {
@@ -128,15 +129,15 @@ class st_plugin{
     }
 
 	function st_rewrite_tag() {
-		add_rewrite_tag( '%st-action%', '([^&]+)' );
+			add_rewrite_tag( '%st-action%', '([^&]+)' );
 	}
 
 	public function st_rewrite_rules() {
-			add_rewrite_rule( '^mensajes/st-action/([^/]*)/?', 'index.php?post_type=ticketing&st-action=$matches[1]','top' );
+			add_rewrite_rule( '^ticketing/st-action/([^/]*)/?', 'index.php?post_type=ticketing&st-action=$matches[1]','top' );
 	}
 
 	public function st_query_vars_filter( $vars ){
-		$vars[] = "st-action";
+		$vars[] = 'st-action';
 		return $vars;
 	}
 
@@ -197,7 +198,7 @@ class st_plugin{
 	public function st_display_template( $archive_template ) {
 		global $post;
 		if ( is_post_type_archive ( 'ticketing' ) ) {
-			$archive_template = ST_BASE_DIR . '/templates/ticketing-template.php';
+			$archive_template = ST_BASE_DIR . 'templates/ticketing-template.php';
 		}
 		return $archive_template;
 	}
@@ -206,7 +207,7 @@ class st_plugin{
 		global $post;
 
 		if ($post->post_type == 'ticketing') {
-			$single_template = ST_BASE_DIR . '/templates/single-ticketing.php';
+			$single_template = ST_BASE_DIR . 'templates/single-ticketing.php';
 		}
 		return $single_template;
 	}
